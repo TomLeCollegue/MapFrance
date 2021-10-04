@@ -2,7 +2,8 @@ package com.test.mapfrance
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -28,8 +29,18 @@ class MapView @JvmOverloads constructor(
 
     var mapAdjustViewBound: Boolean = false
 
+    var onClickRegion: (Boolean, Region?) -> Unit = { _, _ -> }
+
     @DrawableRes
     var mapDrawable: Int = R.drawable.france
+        set(value) {
+            field = value
+            removeAllViews()
+            addPathView()
+            addSurfaceView()
+            initMap()
+            isSelectByClickEnabled = isSelectByClickEnabled
+        }
 
 
     var isSelectByClickEnabled: Boolean = true
@@ -37,7 +48,10 @@ class MapView @JvmOverloads constructor(
             field = value
             if (value) {
                 mapPath.setOnPathClickListener {
-                    activateRegion(it, withAnimate = true)
+                    onClickRegion(
+                        toggleRegion(it, isAnimated = true),
+                        getRegionFromRichPath(it)
+                    )
                 }
             } else {
                 mapPath.setOnPathClickListener(null)
@@ -49,7 +63,7 @@ class MapView @JvmOverloads constructor(
     var animationDuration: Long = 200L
 
     var regions: List<Region> = FrenchRegion.frenchRegion
-    val selectedRegions: MutableList<Region> = mutableListOf()
+    private val selectedRegions: MutableList<Region> = mutableListOf()
 
     init {
         addPathView()
@@ -64,7 +78,7 @@ class MapView @JvmOverloads constructor(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
         )
         mapPath.adjustViewBounds = mapAdjustViewBound
-        mapPath.setVectorDrawable(R.drawable.france)
+        mapPath.setVectorDrawable(mapDrawable)
         addView(mapPath)
     }
 
@@ -110,62 +124,77 @@ class MapView @JvmOverloads constructor(
 
     private fun initMap() {
         mapPath.findAllRichPaths().forEach {
-            it.fillColor = regionBackgroundColor
+            it.fillColor = getRegionBackgroundColor(it)
             it.strokeColor = regionStrokeColor
         }
     }
 
-    private fun deactivateRegion(regionPath: RichPath?, withAnimate: Boolean = false) {
+    private fun getRegionFromRichPath(richPath: RichPath): Region? {
+        return regions.firstOrNull { it.xmlName == richPath.name }
+    }
+
+    private fun getRegionBackgroundColor(richPath: RichPath): Int {
+        val region = getRegionFromRichPath(richPath)
+        return region?.backgroundColor?.let { Color.parseColor(it) } ?: regionBackgroundColor
+    }
+
+    private fun getRegionActiveColor(richPath: RichPath): Int {
+        val region = getRegionFromRichPath(richPath)
+        return region?.activeColor?.let { Color.parseColor(it) } ?: regionActiveColor
+    }
+
+    private fun deactivateRegion(regionPath: RichPath?, isAnimated: Boolean = false) {
         regionPath?.let {
             RichPathAnimator.animate(it)
                 .interpolator(AccelerateDecelerateInterpolator())
-                .duration(if (withAnimate) animationDuration else 0)
-                .scale(1.1f, 1f)
-                .fillColor(regionBackgroundColor)
+                .duration(if (isAnimated) animationDuration else 0)
+                .scale(1.05f, 1f)
+                .fillColor(getRegionBackgroundColor(it))
                 .strokeColor(regionStrokeColor)
                 .start()
-            selectedRegions.remove(selectedRegions.first { (xmlName) ->
-                xmlName == it.name
+            selectedRegions.remove(selectedRegions.first { region ->
+                region.xmlName == it.name
             })
-        } ?: kotlin.run {
-            throw EnumConstantNotPresentException(Regions::class.java, "Province not found.")
         }
     }
 
     private fun deactivateRegion(region: Region) {
         val regionPath = mapPath.findRichPathByName(region.xmlName)
-        deactivateRegion(regionPath, true)
+        deactivateRegion(regionPath)
     }
 
-    private fun activateRegion(
-        regionPath: RichPath?,
-        withBackgroundColor: Int? = null,
-        withStrokeColor: Int? = null,
-        withAnimate: Boolean = false
-    ) {
+    private fun toggleRegion(
+        regionPath: RichPath,
+        isAnimated: Boolean = false
+    ): Boolean {
 
-        //Deactivate selected provinces in single select mode
         if (!isMultiSelectEnabled) {
-            regions.filter { it.xmlName != regionPath?.name }.forEach {
+            selectedRegions.filter { it.xmlName != regionPath.name }.forEach {
                 deactivateRegion(it)
             }
         }
-
-        regionPath?.let { richPath ->
-            //If province is active now, deactivate it
-            if (selectedRegions.any { it.xmlName == richPath.name }) {
-                deactivateRegion(richPath, withAnimate)
-            } else { //Activate province
-                RichPathAnimator.animate(richPath)
-                    .interpolator(AccelerateDecelerateInterpolator())
-                    .duration(if (withAnimate) animationDuration else 0)
-                    .scale(1.1f, 1f)
-                    .fillColor(richPath.fillColor, withBackgroundColor ?: regionActiveColor)
-                    .strokeColor(richPath.strokeColor, withStrokeColor ?: regionStrokeColor)
-                    .start()
-                selectedRegions.add(regions.first { it.xmlName == richPath.name })
-            }
+        return if (selectedRegions.any { it.xmlName == regionPath.name }) {
+            deactivateRegion(regionPath, isAnimated)
+            false
+        } else {
+            activateRegion(regionPath, true)
+            true
         }
+    }
+
+
+    private fun activateRegion(richPath: RichPath, isAnimated: Boolean = false) {
+        RichPathAnimator.animate(richPath)
+            .interpolator(AccelerateDecelerateInterpolator())
+            .duration(if (isAnimated) animationDuration else 0)
+            .scale(1.05f, 1f)
+            .fillColor(
+                richPath.fillColor,
+                getRegionActiveColor(richPath)
+            )
+            .strokeColor(richPath.strokeColor, regionStrokeColor)
+            .start()
+        selectedRegions.add(regions.first { it.xmlName == richPath.name })
     }
 
 
