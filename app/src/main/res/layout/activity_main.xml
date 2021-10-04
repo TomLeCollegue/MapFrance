@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.test.mapfrance.FranceView
+    <com.test.mapfrance.MapView
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -19,7 +19,7 @@
         app:RegionActiveBackgroundColor="#03A9F4"
         app:RegionStrokeColor="#039BE5"
         app:RegionSelectByClick="true"
-        app:RegionMultiSelect="true"
+        app:RegionMultiSelect="false"
         app:MapAppearWithAnimation="true" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
