@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="MapView">
-        <attr name="RegionBackgroundColor" format="color|reference"/>
-        <attr name="RegionActiveBackgroundColor" format="color|reference"/>
-        <attr name="RegionStrokeColor" format="color|reference"/>
-        <attr name="RegionSelectByClick" format="boolean"/>
-        <attr name="RegionMultiSelect" format="boolean"/>
-        <attr name="AnimationDuration" format="integer"/>
-        <attr name="MapAppearWithAnimation" format="boolean"/>
-        <attr name="AdjustViewBound" format="boolean"/>
+        <attr name="regionBackgroundColor" format="color|reference"/>
+        <attr name="regionActiveBackgroundColor" format="color|reference"/>
+        <attr name="regionStrokeColor" format="color|reference"/>
+        <attr name="isSelectByClickEnabled" format="boolean"/>
+        <attr name="isMultiSelectEnabled" format="boolean"/>
+        <attr name="animationDuration" format="integer"/>
+        <attr name="adjustViewBound" format="boolean"/>
+        <attr name="isRegionToggleAnimated" format="boolean"/>
     </declare-styleable>
 </resources>

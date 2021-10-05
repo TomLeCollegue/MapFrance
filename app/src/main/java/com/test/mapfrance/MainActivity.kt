@@ -1,8 +1,7 @@
 package com.test.mapfrance
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.test.mapfrance.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -12,9 +11,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        supportActionBar?.title = "France: Tendances Politiques"
 
         binding.map.onClickRegion = { activated, region ->
-            Log.d("observe", "$activated, $region")
+            if (activated) {
+                binding.nameRegionTextView.text = region?.name
+                binding.oriantationRegionTextView.text = (region as? RegionWithPolitic)?.politicBorder?.orientationName
+            } else {
+                binding.nameRegionTextView.text = null
+                binding.oriantationRegionTextView.text = null
+            }
         }
+        binding.map.regions = FrenchRegion.politicFrenchRegion
+        binding.map.getMarkerView = { PoliticMarkerView(this) }
+
     }
 }

@@ -1,25 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
-    <com.test.mapfrance.MapView
-        android:id="@+id/map"
+    android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:RegionBackgroundColor="#81D4FA"
-        app:RegionActiveBackgroundColor="#03A9F4"
-        app:RegionStrokeColor="#039BE5"
-        app:RegionSelectByClick="true"
-        app:RegionMultiSelect="false"
-        app:MapAppearWithAnimation="true" />
+        android:layout_height="match_parent">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/oriantationRegionTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="32dp"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/nameRegionTextView"
+            app:layout_constraintStart_toStartOf="@+id/nameRegionTextView"
+            app:layout_constraintTop_toBottomOf="@+id/nameRegionTextView"
+            tools:text="Droite (Election regionales de 2015)" />
+
+        <TextView
+            android:id="@+id/nameRegionTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:textSize="32sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/map"
+            tools:text="Corse" />
+
+
+        <com.test.mapfrance.MapView
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:isMultiSelectEnabled="false"
+            app:isSelectByClickEnabled="true"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:regionActiveBackgroundColor="#03A9F4"
+            app:regionBackgroundColor="#81D4FA" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
