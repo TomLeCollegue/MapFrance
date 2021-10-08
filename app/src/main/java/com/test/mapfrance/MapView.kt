@@ -3,9 +3,7 @@ package com.test.mapfrance
 import android.content.Context
 import android.graphics.Color
 import android.graphics.RectF
-import android.os.Build
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -14,7 +12,6 @@ import androidx.annotation.DrawableRes
 import com.richpath.RichPath
 import com.richpath.RichPathView
 import com.richpathanimator.RichPathAnimator
-import java.lang.Float.min
 
 class MapView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -223,11 +220,9 @@ class MapView @JvmOverloads constructor(
                 marker.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
                 val width: Int = marker.measuredWidth
                 val height: Int = marker.measuredHeight
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Log.d("translation", "${regionBounds.centerX()}, ${this.height}, $height")
-                    marker.translationY = min(regionBounds.centerY(), this.height.toFloat() - height - 20)
-                    marker.translationX = min(regionBounds.centerX(), this.width.toFloat() - width - 20)
-                }
+                marker.translationY = minOf(regionBounds.centerY(), this.height.toFloat() - height - 20)
+                marker.translationX = minOf(regionBounds.centerX(), this.width.toFloat() - width - 20)
+
                 markerList += marker
             }
         }
