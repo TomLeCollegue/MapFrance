@@ -1,6 +1,8 @@
-package com.test.mapfrance
+package com.test.mapfrance.mapview.marker
 
 import android.content.Context
+import com.test.mapfrance.R
+import com.test.mapfrance.mapview.Region
 import com.test.mapfrance.databinding.MarkerviewLayoutBinding
 
 class DefaultMarkerViewImpl(context: Context) : MarkerView(context) {

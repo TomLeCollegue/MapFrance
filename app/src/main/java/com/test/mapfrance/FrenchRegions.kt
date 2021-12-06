@@ -1,24 +1,13 @@
 package com.test.mapfrance
 
+import com.test.mapfrance.keyfigureimpl.KeyFigureRegion
+import com.test.mapfrance.keyfigureimpl.parseJsonKeyFigure
+import com.test.mapfrance.politicimpl.Orientation
+import com.test.mapfrance.politicimpl.RegionWithPolitic
+
 object FrenchRegion {
 
-    val frenchRegion = listOf<Region>(
-        Region("GrandEst", "Grand Est"),
-        Region("NouvelleAquitaine", "Nouvelle-Aquitaine"),
-        Region("AuvergneRhoneAlpes", "Auvergne-Rhône-Alpes"),
-        Region("BourgogneFrancheComte", "Bourgogne-Franche-Comté"),
-        Region("Bretagne", "Bretagne", "#6200EE", "#018786"),
-        Region("CentreValdeLoire", "Centre-Val de Loire", "#6200EE", "#018786"),
-        Region("IleDeFrance", "Île-de-France", "#6200EE", "#018786"),
-        Region("Occitanie", "Occitanie"),
-        Region("HautDeFrance", "Hauts-de-France"),
-        Region("Normandie", "Normandie"),
-        Region("PaysDeLaLoire", "Pays de la Loire"),
-        Region("ProvenceAlpesCoteDAzur", "Provence-Alpes-Côte d'Azur"),
-        Region("Corse", "Corse")
-    )
-
-    val politicFrenchRegion = listOf<RegionWithPolitic>(
+    val politicFrenchRegion: List<RegionWithPolitic> = listOf<RegionWithPolitic>(
         RegionWithPolitic("GrandEst", "Grand Est", Orientation.DROITE),
         RegionWithPolitic("NouvelleAquitaine", "Nouvelle-Aquitaine", Orientation.GAUCHE),
         RegionWithPolitic("AuvergneRhoneAlpes", "Auvergne-Rhône-Alpes", Orientation.DROITE),
@@ -33,4 +22,6 @@ object FrenchRegion {
         RegionWithPolitic("ProvenceAlpesCoteDAzur", "Provence-Alpes-Côte d'Azur", Orientation.DROITE),
         RegionWithPolitic("Corse", "Corse", Orientation.GAUCHE)
     )
+
+    val vaccinationFrenchRegion: List<KeyFigureRegion> = parseJsonKeyFigure()
 }

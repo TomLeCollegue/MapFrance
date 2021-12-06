@@ -1,4 +1,4 @@
-package com.test.mapfrance
+package com.test.mapfrance.mapview
 
 import android.content.Context
 import android.graphics.Color
@@ -9,32 +9,29 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
-import com.richpath.RichPath
-import com.richpath.RichPathView
-import com.richpathanimator.RichPathAnimator
+import com.test.mapfrance.FrenchRegion
+import com.test.mapfrance.R
+import com.test.mapfrance.mapview.marker.MarkerView
+import com.test.mapfrance.richpath.RichPath
+import com.test.mapfrance.richpath.RichPathView
+import com.test.mapfrance.richpath.animator.RichPathAnimator
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MapView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     private lateinit var mapPath: RichPathView
-
     var regionBackgroundColor: Int = Color.BLACK
-
     var isRegionToggleAnimated: Boolean = true
-
-    var regionActiveColor: Int = Color.CYAN
-
+    var regionSelectedColor: Int = Color.CYAN
     var regionStrokeColor: Int = Color.WHITE
-
     var getMarkerView: () -> MarkerView? = { null }
         set(value) {
             field = value
             resetMap()
         }
-
-    var mapAdjustViewBound: Boolean = true
-
     var onClickRegion: (Boolean, Region?) -> Unit = { _, _ -> }
 
     @DrawableRes
@@ -44,7 +41,7 @@ class MapView @JvmOverloads constructor(
             resetMap()
         }
 
-    var isSelectByClickEnabled: Boolean = true
+    var isToggleByClickEnabled: Boolean = true
         set(value) {
             field = value
             toggleSelectByClick()
@@ -54,14 +51,13 @@ class MapView @JvmOverloads constructor(
 
     var animationDuration: Long = 200L
 
-    var regions: List<Region> = FrenchRegion.frenchRegion
+    var regions: List<Region> = FrenchRegion.vaccinationFrenchRegion
         set(value) {
             field = value
             resetMap()
         }
 
-    val selectedRegions: MutableList<Region> = mutableListOf()
-
+    private val selectedRegions: MutableList<Region> = mutableListOf()
     private val markerList: MutableList<View> = mutableListOf()
 
     init {
@@ -69,20 +65,34 @@ class MapView @JvmOverloads constructor(
         handleAttr(context, attrs)
     }
 
-    private fun toggleSelectByClick() {
-        if (isSelectByClickEnabled) {
-            mapPath.setOnPathClickListener {
-                onClickRegion(
-                    toggleRegion(it),
-                    getRegionFromRichPath(it)
-                )
-            }
-        } else {
-            mapPath.setOnPathClickListener(null)
+    fun unselectRegion(region: Region) {
+        val regionPath = mapPath.findRichPathByName(region.xmlName)
+        regionPath?.let {
+            regionPath.unselect()
         }
     }
 
-    private fun resetMap() {
+    fun selectRegion(region: Region) {
+        val regionPath = mapPath.findRichPathByName(region.xmlName)
+        regionPath?.let {
+            regionPath.selectRegion()
+        }
+    }
+
+    private fun toggleSelectByClick() {
+        if (isToggleByClickEnabled) {
+            mapPath.setOnPatchClickListener {
+                onClickRegion(
+                    it.toggle(),
+                    it.getRegionFromRichPath()
+                )
+            }
+        } else {
+            mapPath.onPathClickListener = null
+        }
+    }
+
+    fun resetMap() {
         removeAllViews()
         addPathView()
         setMapColors()
@@ -96,25 +106,20 @@ class MapView @JvmOverloads constructor(
         mapPath.layoutParams = LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
         )
-        mapPath.adjustViewBounds = mapAdjustViewBound
+        mapPath.adjustViewBounds = true
         mapPath.setVectorDrawable(mapDrawable)
         addView(mapPath)
     }
 
     private fun handleAttr(context: Context, attrs: AttributeSet?) {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.MapView, 0, 0)
-
         try {
             regionBackgroundColor = typedArray.getColor(R.styleable.MapView_regionBackgroundColor, Color.BLACK)
-            regionActiveColor = typedArray.getColor(
-                R.styleable.MapView_regionActiveBackgroundColor,
-                Color.CYAN
-            )
+            regionSelectedColor = typedArray.getColor(R.styleable.MapView_regionSelectedColor, Color.CYAN)
             regionStrokeColor = typedArray.getColor(R.styleable.MapView_regionStrokeColor, Color.WHITE)
-            isSelectByClickEnabled = typedArray.getBoolean(R.styleable.MapView_isSelectByClickEnabled, true)
+            isToggleByClickEnabled = typedArray.getBoolean(R.styleable.MapView_isToggleByClickEnabled, true)
             isMultiSelectEnabled = typedArray.getBoolean(R.styleable.MapView_isMultiSelectEnabled, false)
             animationDuration = typedArray.getInt(R.styleable.MapView_animationDuration, 200).toLong()
-            mapAdjustViewBound = typedArray.getBoolean(R.styleable.MapView_adjustViewBound, false)
             isRegionToggleAnimated = typedArray.getBoolean(R.styleable.MapView_isRegionToggleAnimated, true)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -130,78 +135,64 @@ class MapView @JvmOverloads constructor(
 
     private fun setMapColors() {
         mapPath.findAllRichPaths().forEach {
-            it.fillColor = getRegionBackgroundColor(it)
+            it.fillColor = it.regionBackgroundColor()
             it.strokeColor = regionStrokeColor
         }
     }
 
-    private fun getRegionFromRichPath(richPath: RichPath): Region? {
-        return regions.firstOrNull { it.xmlName == richPath.name }
+    private fun RichPath.getRegionFromRichPath(): Region? {
+        return regions.firstOrNull { it.xmlName == this.name }
     }
 
-    private fun getRegionBackgroundColor(richPath: RichPath): Int {
-        val region = getRegionFromRichPath(richPath)
+    private fun RichPath.regionBackgroundColor(): Int {
+        val region = this.getRegionFromRichPath()
         return region?.backgroundColor?.let { Color.parseColor(it) } ?: regionBackgroundColor
     }
 
-    private fun getRegionActiveColor(richPath: RichPath): Int {
-        val region = getRegionFromRichPath(richPath)
-        return region?.activeColor?.let { Color.parseColor(it) } ?: regionActiveColor
+    private fun RichPath.regionSelectedColor(): Int {
+        val region = this.getRegionFromRichPath()
+        return region?.colorSelected?.let { Color.parseColor(it) } ?: regionSelectedColor
     }
 
-    private fun deactivateRegion(regionPath: RichPath, isAnimated: Boolean = false) {
-        RichPathAnimator.animate(regionPath)
-            .interpolator(AccelerateDecelerateInterpolator())
-            .duration(if (isAnimated) animationDuration else 0)
-            .scale(1.05f, 1f)
-            .fillColor(getRegionBackgroundColor(regionPath))
-            .strokeColor(regionStrokeColor)
-            .start()
-        selectedRegions.remove(selectedRegions.first { it.xmlName == regionPath.name })
-        drawMarkers()
-    }
-
-    fun deactivateRegion(region: Region, isToggleAnimated: Boolean = false) {
-        val regionPath = mapPath.findRichPathByName(region.xmlName)
-        regionPath?.let {
-            deactivateRegion(regionPath)
-        }
-    }
-
-    fun activateRegion(region: Region) {
-        val regionPath = mapPath.findRichPathByName(region.xmlName)
-        regionPath?.let {
-            activateRegion(regionPath)
-        }
-    }
-
-    private fun toggleRegion(regionPath: RichPath): Boolean {
+    private fun RichPath.toggle(): Boolean {
         if (!isMultiSelectEnabled) {
-            selectedRegions.filter { it.xmlName != regionPath.name }.forEach {
-                deactivateRegion(it)
+            selectedRegions.filter { it.xmlName != this.name }.forEach {
+                unselectRegion(it)
             }
         }
-        return if (selectedRegions.any { it.xmlName == regionPath.name }) {
-            deactivateRegion(regionPath, isRegionToggleAnimated)
+        return if (selectedRegions.any { it.xmlName == this.name }) {
+            this.unselect(isRegionToggleAnimated)
             false
         } else {
-            activateRegion(regionPath)
+            this.selectRegion()
             true
         }
     }
 
-    private fun activateRegion(richPath: RichPath) {
-        RichPathAnimator.animate(richPath)
+    private fun RichPath.unselect(isAnimated: Boolean = false) {
+        RichPathAnimator.animate(this)
+            .interpolator(AccelerateDecelerateInterpolator())
+            .duration(if (isAnimated) animationDuration else 0)
+            .scale(1.05f, 1f)
+            .fillColor(this.regionBackgroundColor())
+            .strokeColor(regionStrokeColor)
+            .start()
+        selectedRegions.remove(selectedRegions.first { it.xmlName == this.name })
+        drawMarkers()
+    }
+
+    private fun RichPath.selectRegion() {
+        RichPathAnimator.animate(this)
             .interpolator(AccelerateDecelerateInterpolator())
             .duration(if (isRegionToggleAnimated) animationDuration else 0)
             .scale(1.05f, 1f)
             .fillColor(
-                richPath.fillColor,
-                getRegionActiveColor(richPath)
+                this.fillColor,
+                this.regionSelectedColor()
             )
-            .strokeColor(richPath.strokeColor, regionStrokeColor)
+            .strokeColor(this.strokeColor, regionStrokeColor)
             .start()
-        selectedRegions.add(regions.first { it.xmlName == richPath.name })
+        selectedRegions.add(regions.first { it.xmlName == this.name })
         drawMarkers()
     }
 

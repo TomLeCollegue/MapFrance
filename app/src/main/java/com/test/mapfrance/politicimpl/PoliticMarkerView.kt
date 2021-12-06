@@ -1,7 +1,10 @@
-package com.test.mapfrance
+package com.test.mapfrance.politicimpl
 
 import android.content.Context
+import com.test.mapfrance.R
 import com.test.mapfrance.databinding.PoliticMarkerviewLayoutBinding
+import com.test.mapfrance.mapview.Region
+import com.test.mapfrance.mapview.marker.MarkerView
 
 class PoliticMarkerView(context: Context) : MarkerView(context) {
 
