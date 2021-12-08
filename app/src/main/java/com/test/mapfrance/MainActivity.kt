@@ -4,10 +4,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.test.mapfrance.databinding.ActivityMainBinding
-import com.test.mapfrance.keyfigureimpl.KeyFigureRegion
-import com.test.mapfrance.keyfigureimpl.parseJsonKeyFigure
-import com.test.mapfrance.politicimpl.PoliticMarkerView
-import com.test.mapfrance.politicimpl.RegionWithPolitic
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,19 +32,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         Log.d("observe", "$colors")
-
-
-
-
-        binding.map.onClickRegion = { activated, region ->
-            if (activated) {
-                binding.nameRegionTextView.text = region?.name
-                binding.oriantationRegionTextView.text = (region as? RegionWithPolitic)?.politicBorder?.orientationName
-            } else {
-                binding.nameRegionTextView.text = null
-                binding.oriantationRegionTextView.text = null
-            }
-        }
+        binding.map.mapDrawable = R.drawable.france
         binding.map.regions = FrenchRegion.vaccinationFrenchRegion
         //binding.map.getMarkerView = { PoliticMarkerView(this) }
 

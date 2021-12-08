@@ -10,3 +10,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "MapFrance"
 include ':app'
+include ':mapview'

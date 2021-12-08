@@ -52,7 +52,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.test.mapfrance.mapview.MapView
+        <com.example.mapview.view.MapView
             android:id="@+id/map"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -64,7 +64,7 @@
             app:regionBackgroundColor="#81D4FA"
             app:regionSelectedColor="#03A9F4">
 
-        </com.test.mapfrance.mapview.MapView>
+        </com.example.mapview.view.MapView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
