@@ -10,8 +10,10 @@ object PathParserCompat {
      * @param endPosition the position of the next separator
      * @param isEndWithNegOrDot whether the next float starts with a '-' or a '.'
      */
-    data class ExtractFloatResult(var endPosition: Int = 0,
-        var isEndWithNegOrDot: Boolean = false)
+    data class ExtractFloatResult(
+        var endPosition: Int = 0,
+        var isEndWithNegOrDot: Boolean = false
+    )
 
     // Copy from Arrays.copyOfRange() which is only available from API level 9.
     /**
@@ -86,86 +88,6 @@ object PathParserCompat {
         return list.toTypedArray()
     }
 
-    /**
-     * @param source The array of PathDataNode to be duplicated.
-     * @return a deep copy of the <code>source</code>.
-     */
-    fun deepCopyNodes(source: Array<PathDataNode>): Array<PathDataNode> {
-        val copy = arrayListOf<PathDataNode>()
-        for (i in source.indices) {
-            copy.add(i, PathDataNode(source[i]))
-        }
-        return copy.toTypedArray()
-    }
-
-    /**
-     * @param nodesFrom The source path represented in an array of PathDataNode
-     * @param nodesTo   The target path represented in an array of PathDataNode
-     * @return whether the <code>nodesFrom</code> can morph into <code>nodesTo</code>
-     */
-    fun canMorph(nodesFrom: Array<PathDataNode>?, nodesTo: Array<PathDataNode>?): Boolean {
-        if (nodesFrom == null || nodesTo == null) {
-            return false
-        }
-
-        if (nodesFrom.size != nodesTo.size) {
-            return false
-        }
-
-        for (i in nodesFrom.indices) {
-            if (nodesFrom[i].type != nodesTo[i].type
-                || nodesFrom[i].params.size != nodesTo[i].params.size) {
-                return false
-            }
-        }
-        return true
-    }
-
-    /**
-     * @param nodes paths represented in an array of an array of PathDataNode
-     * @return whether the <code>nodesFrom</code> can morph into <code>nodesTo</code>
-     */
-    fun canMorph(nodes: Array<Array<PathDataNode>>): Boolean {
-        for (pathDataNode in nodes) {
-            if (pathDataNode.isEmpty()) {
-                return false
-            }
-        }
-
-        for (i in 0 until nodes.size - 1) {
-            if (nodes[i].size != nodes[i + 1].size) {
-                return false
-            }
-        }
-
-        for (i in 0 until nodes.size - 1) {
-            for (j in nodes[i].indices) {
-                if (nodes[i][j].type != nodes[i + 1][j].type
-                    || nodes[i][j].params.size != nodes[i + 1][j].params.size) {
-                    return false
-                }
-            }
-        }
-
-        return true
-    }
-
-    /**
-     * Update the target's data to match the source.
-     * Before calling this, make sure canMorph(target, source) is true.
-     *
-     * @param target The target path represented in an array of PathDataNode
-     * @param source The source path represented in an array of PathDataNode
-     */
-    fun updateNodes(target: Array<PathDataNode>, source: Array<PathDataNode>) {
-        for (i in source.indices) {
-            target[i].type = source[i].type
-            for (j in source[i].params.indices) {
-                target[i].params[j] = source[i].params[j]
-            }
-        }
-    }
-
     private fun nextStart(s: String, end: Int): Int {
         var c: Char
         var end = end
@@ -176,7 +98,8 @@ object PathParserCompat {
             // Therefore, when searching for next command, we should ignore 'e'
             // and 'E'.
             if (((c - 'A') * (c - 'Z') <= 0 || (c - 'a') * (c - 'z') <= 0)
-                && c != 'e' && c != 'E') {
+                && c != 'e' && c != 'E'
+            ) {
                 return end
             }
             end++

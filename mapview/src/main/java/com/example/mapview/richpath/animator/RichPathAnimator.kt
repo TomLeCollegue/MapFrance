@@ -22,16 +22,6 @@ class RichPathAnimator {
     private var next: RichPathAnimator? = null
 
     companion object {
-        const val INFINITE = -1
-
-        @JvmField
-        val NONE = RepeatMode.None
-
-        @JvmField
-        val RESTART = RepeatMode.Restart
-
-        @JvmField
-        val REVERSE = RepeatMode.Reverse
 
         @JvmStatic
         fun animate(vararg paths: RichPath): AnimationBuilder {
@@ -45,13 +35,6 @@ class RichPathAnimator {
         val animationBuilder = AnimationBuilder(this, paths)
         animationBuilders.add(animationBuilder)
         return animationBuilder
-    }
-
-    internal fun thenAnimate(paths: Array<out RichPath>): AnimationBuilder {
-        val nextRichPathAnimator = RichPathAnimator()
-        this.next = nextRichPathAnimator
-        nextRichPathAnimator.prev = this
-        return nextRichPathAnimator.addAnimationBuilder(paths)
     }
 
     private fun createAnimatorSet(): AnimatorSet {

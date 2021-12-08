@@ -33,7 +33,7 @@ class RichPathDrawable(
         }
     }
 
-    internal fun mapPaths() {
+    private fun mapPaths() {
         val vector = vector ?: return
 
         val centerX = width / 2f
@@ -88,45 +88,6 @@ class RichPathDrawable(
         return null
     }
 
-    /**
-     * find the first [RichPath] or null if not found
-     * <p>
-     * This can be in handy if the vector consists of 1 path only
-     *
-     * @return the [RichPath] object found or null
-     */
-    fun findFirstRichPath(): RichPath? {
-        return findRichPathByIndex(0)
-    }
-
-    /**
-     * find [RichPath] by its index or null if not found
-     * <p>
-     * Note that the provided index must be the flattened index of the path
-     * <p>
-     * example:
-     * <pre>
-     * {@code <vector>
-     *     <path> // index = 0
-     *     <path> // index = 1
-     *     <group>
-     *          <path> // index = 2
-     *          <group>
-     *              <path> // index = 3
-     *          </group>
-     *      </group>
-     *      <path> // index = 4
-     *   </vector>}
-     * </pre>
-     *
-     * @param index the flattened index of the path
-     * @return the [RichPath] object found or null
-     */
-    fun findRichPathByIndex(@IntRange(from = 0) index: Int): RichPath? {
-        if (vector == null || index < 0 || index >= vector.paths.size) return null
-        return vector.paths[index]
-    }
-
     private fun listenToPathsUpdates() {
         val vector = vector ?: return
         for (path in vector.paths) {
@@ -136,30 +97,6 @@ class RichPathDrawable(
                 }
             }
         }
-    }
-
-    fun addPath(path: String) {
-        addPath(PathParser.createPathFromPathData(path))
-    }
-
-    fun addPath(path: Path) {
-        if (path is RichPath) {
-            addPath(path)
-        } else {
-            addPath(RichPath(path))
-        }
-    }
-
-    private fun addPath(path: RichPath) {
-        val vector = vector ?: return
-
-        vector.paths.add(path)
-        path.onRichPathUpdatedListener = object : OnRichPathUpdatedListener {
-            override fun onPathUpdated() {
-                invalidateSelf()
-            }
-        }
-        invalidateSelf()
     }
 
     fun getTouchedPath(event: MotionEvent?): RichPath? {

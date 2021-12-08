@@ -106,10 +106,6 @@ object XmlParser {
         return getAttributeValue(xpp, attributeName)?.toBoolean() ?: defValue
     }
 
-    fun getAttributeInt(xpp: XmlResourceParser, attributeName: String, defValue: Int): Int {
-        return getAttributeValue(xpp, attributeName)?.toInt() ?: defValue
-    }
-
     fun getAttributeColor(
         context: Context,
         xpp: XmlResourceParser,

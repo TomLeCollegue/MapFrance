@@ -2,16 +2,13 @@ package com.example.mapview.richpath
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Path
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.DrawableRes
-import androidx.annotation.IntRange
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.mapview.R
 import com.example.mapview.richpath.model.Vector
-import com.example.mapview.richpath.pathparser.PathParser
 import com.example.mapview.richpath.util.XmlParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
@@ -123,52 +120,6 @@ class RichPathView @JvmOverloads constructor(
 
     fun findRichPathByName(name: String): RichPath? {
         return richPathDrawable?.findRichPathByName(name)
-    }
-
-    /**
-     * find the first [RichPath] or null if not found
-     * <p>
-     * This can be in handy if the vector consists of 1 path only
-     *
-     * @return the [RichPath] object found or null
-     */
-    fun findFirstRichPath(): RichPath? {
-        return richPathDrawable?.findFirstRichPath()
-    }
-
-    /**
-     * find [RichPath] by its index or null if not found
-     * <p>
-     * Note that the provided index must be the flattened index of the path
-     * <p>
-     * example:
-     * <pre>
-     * {@code <vector>
-     *     <path> // index = 0
-     *     <path> // index = 1
-     *     <group>
-     *          <path> // index = 2
-     *          <group>
-     *              <path> // index = 3
-     *          </group>
-     *      </group>
-     *      <path> // index = 4
-     *   </vector>}
-     * </pre>
-     *
-     * @param index the flattened index of the path
-     * @return the [RichPath] object found or null
-     */
-    fun findRichPathByIndex(@IntRange(from = 0) index: Int): RichPath? {
-        return richPathDrawable?.findRichPathByIndex(index)
-    }
-
-    fun addPath(path: String) {
-        richPathDrawable?.addPath(PathParser.createPathFromPathData(path))
-    }
-
-    fun addPath(path: Path) {
-        richPathDrawable?.addPath(path)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {

@@ -80,72 +80,6 @@ class RichPath(private val src: Path) : Path(src) {
 
     var name: String? = null
     private lateinit var paint: Paint
-    var rotation: Float = 0f
-        set(value) {
-            val deltaValue = value - field
-            if (isPivotToCenter) {
-                PathUtils.setPathRotation(this, deltaValue)
-                PathUtils.setPathRotation(src, deltaValue)
-            } else {
-                PathUtils.setPathRotation(this, deltaValue, pivotX, pivotY)
-                PathUtils.setPathRotation(src, deltaValue, pivotX, pivotY)
-            }
-            field = value
-            onPathUpdated()
-        }
-    var scaleX: Float = 1f
-        set(value) {
-            if (isPivotToCenter) {
-                //reset scaling
-                PathUtils.setPathScaleX(this, 1.0f / field)
-                PathUtils.setPathScaleX(src, 1.0f / field)
-                //new scaling
-                PathUtils.setPathScaleX(this, value)
-                PathUtils.setPathScaleX(src, value)
-            } else {
-                //reset scaling
-                PathUtils.setPathScaleX(this, 1.0f / field, pivotX, pivotY)
-                PathUtils.setPathScaleX(src, 1.0f / field, pivotX, pivotY)
-                //new scaling
-                PathUtils.setPathScaleX(this, value, pivotX, pivotY)
-                PathUtils.setPathScaleX(src, value, pivotX, pivotY)
-            }
-            field = value
-            onPathUpdated()
-        }
-    var scaleY: Float = 1f
-        set(value) {
-            if (isPivotToCenter) { //reset scaling
-                PathUtils.setPathScaleY(this, 1.0f / field)
-                PathUtils.setPathScaleY(src, 1.0f / field)
-                //new scaling
-                PathUtils.setPathScaleY(this, value)
-                PathUtils.setPathScaleY(src, value)
-            } else { //reset scaling
-                PathUtils.setPathScaleY(this, 1.0f / field, pivotX, pivotY)
-                PathUtils.setPathScaleY(src, 1.0f / field, pivotX, pivotY)
-                //new scaling
-                PathUtils.setPathScaleY(this, value, pivotX, pivotY)
-                PathUtils.setPathScaleY(src, value, pivotX, pivotY)
-            }
-            field = value
-            onPathUpdated()
-        }
-    var translationX: Float = 0f
-        set(value) {
-            PathUtils.setPathTranslationX(this, value - field)
-            PathUtils.setPathTranslationX(src, value - field)
-            field = value
-            onPathUpdated()
-
-        }
-    var translationY: Float = 0f
-        set(value) {
-            PathUtils.setPathTranslationY(this, value - field)
-            PathUtils.setPathTranslationY(src, value - field)
-            field = value
-            onPathUpdated()
-        }
 
     var originalWidth: Float = 0f
         private set
@@ -154,7 +88,6 @@ class RichPath(private val src: Path) : Path(src) {
 
     var pivotX: Float = 0f
     var pivotY: Float = 0f
-    var isPivotToCenter: Boolean = false
 
     var onRichPathUpdatedListener: OnRichPathUpdatedListener? = null
         internal set
@@ -189,22 +122,6 @@ class RichPath(private val src: Path) : Path(src) {
         matrices = arrayListOf()
         updateOriginalDimens()
     }
-
-    fun setWidth(width: Float) {
-        PathUtils.setPathWidth(this, width)
-        PathUtils.setPathWidth(src, width)
-        onPathUpdated()
-    }
-
-    fun getWidth(): Float = PathUtils.getPathWidth(this)
-
-    fun setHeight(height: Float) {
-        PathUtils.setPathHeight(this, height)
-        PathUtils.setPathWidth(src, height)
-        onPathUpdated()
-    }
-
-    fun getHeight(): Float = PathUtils.getPathHeight(this)
 
     internal fun draw(canvas: Canvas) {
         paint.run {
@@ -241,12 +158,6 @@ class RichPath(private val src: Path) : Path(src) {
 
     internal fun scaleStrokeWidth(scale: Float) {
         paint.strokeWidth = strokeWidth * scale
-    }
-
-    fun setPathData(pathData: String) {
-        PathParserCompat.createNodesFromPathData(pathData)?.let {
-            pathDataNodes = it
-        }
     }
 
     fun inflate(context: Context, xpp: XmlResourceParser) {
